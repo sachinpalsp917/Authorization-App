@@ -1,20 +1,8 @@
-import { z } from "zod";
 import catchError from "../utils/catchError";
-import { createAccount } from "../services/auth.services";
+import { createAccount, loginUser } from "../services/auth.services";
 import { setAuthCookies } from "../utils/cookies";
-import { CREATED } from "../constants/http";
-
-const registerSchema = z
-  .object({
-    email: z.string().email(),
-    password: z.string().min(6).max(12),
-    confirmPassword: z.string().min(6).max(12),
-    userAgent: z.string().optional(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirm-Password"],
-  });
+import { CREATED, OK } from "../constants/http";
+import { loginSchema, registerSchema } from "../schemas/auth.schemas";
 
 export const registerHandler = catchError(async (req, res) => {
   //validate request
@@ -28,4 +16,17 @@ export const registerHandler = catchError(async (req, res) => {
 
   //return response
   setAuthCookies({ res, accessToken, refreshToken }).status(CREATED).json(user);
+});
+
+export const loginHandler = catchError(async (req, res) => {
+  const request = loginSchema.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const { refreshToken, accessToken } = await loginUser(request);
+
+  setAuthCookies({ refreshToken, accessToken, res })
+    .status(OK)
+    .json({ message: "Logged in" });
 });
