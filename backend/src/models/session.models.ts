@@ -20,7 +20,6 @@ const sessionSchema = new mongoose.Schema<sessionDocument>({
   },
   createdAt: {
     type: Date,
-    required: true,
   },
   expiresAt: {
     type: Date,

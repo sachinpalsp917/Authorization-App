@@ -60,5 +60,5 @@ export const createAccount = async (data: createAccountParams) => {
     }
   );
 
-  return { newUser, accessToken, refreshToken };
+  return { user: newUser, accessToken, refreshToken };
 };

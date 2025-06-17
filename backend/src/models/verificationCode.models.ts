@@ -25,7 +25,6 @@ const verificationCodeSchema = new mongoose.Schema<VerificationCodeDocument>({
   },
   createdAt: {
     type: Date,
-    required: true,
   },
 });
 
