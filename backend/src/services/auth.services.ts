@@ -1,3 +1,5 @@
+import { User } from "../models/user.models";
+
 export type createAccountParams = {
   email: string;
   password: string;
@@ -14,4 +16,12 @@ export const createAccount = async (data: createAccountParams) => {
         6. sign access & refresh token
         7. return user, refresh & access token
     */
+
+  const existingUser = await User.findOne({ email: data.email });
+
+  if (existingUser) {
+    throw new Error("User already exists");
+  }
+
+  const newUser = User.create({ email: data.email, password: data.password });
 };
