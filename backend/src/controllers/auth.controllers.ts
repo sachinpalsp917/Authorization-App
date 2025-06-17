@@ -1,5 +1,6 @@
 import { z } from "zod";
 import catchError from "../utils/catchError";
+import { createAccount } from "../services/auth.services";
 
 const registerSchema = z
   .object({
@@ -19,7 +20,8 @@ export const registerHandler = catchError(async (req, res) => {
     ...req.body,
     userAgent: req.headers["user-agent"],
   });
-  console.log(request);
+
   //call service
+  const newUser = createAccount(request);
   //return response
 });
