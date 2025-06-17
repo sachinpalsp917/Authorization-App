@@ -1,8 +1,10 @@
 import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
+import { CONFLICT } from "../constants/http";
 import verficationCode from "../constants/verifcationCodeTypes";
 import { Session } from "../models/session.models";
 import { User } from "../models/user.models";
 import { VerificationCode } from "../models/verificationCode.models";
+import appAssert from "../utils/appAssert";
 import { thirtyMinutesFromNow } from "../utils/date";
 import jwt from "jsonwebtoken";
 
@@ -25,9 +27,10 @@ export const createAccount = async (data: createAccountParams) => {
 
   const existingUser = await User.findOne({ email: data.email });
 
-  if (existingUser) {
-    throw new Error("User already exists");
-  }
+  //   if (existingUser) {
+  //     throw new Error("User already exists");
+  //   }
+  appAssert(!existingUser, CONFLICT, "Email already in use");
 
   const newUser = await User.create({
     email: data.email,
