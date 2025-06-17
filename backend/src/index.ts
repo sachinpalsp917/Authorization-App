@@ -5,6 +5,8 @@ import connectToDatabase from "./config/db";
 import { APP_ORIGIN, NODE_ENV, PORT } from "./constants/env";
 import cookieParser from "cookie-parser";
 import errorHandler from "./middleware/errorHandler";
+import authRoutes from "./routes/auth.routes";
+import { OK } from "./constants/http";
 
 const app = express();
 
@@ -18,9 +20,11 @@ app.use(
 );
 app.use(cookieParser());
 
-app.use("/", (req, res) => {
-  res.send({ message: "healthy" });
+app.use("/healthCheck", (_, res) => {
+  res.status(OK).json({ message: "healthy" });
 });
+
+app.use("/auth", authRoutes);
 
 app.use(errorHandler);
 
