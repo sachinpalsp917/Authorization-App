@@ -14,5 +14,4 @@ export const createAccount = async (data: createAccountParams) => {
         6. sign access & refresh token
         7. return user, refresh & access token
     */
-  console.log("in service", data);
 };
