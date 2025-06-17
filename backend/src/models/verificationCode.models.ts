@@ -29,7 +29,7 @@ const verificationCodeSchema = new mongoose.Schema<VerificationCodeDocument>({
   },
 });
 
-export const Verification = mongoose.model<VerificationCodeDocument>(
+export const VerificationCode = mongoose.model<VerificationCodeDocument>(
   "Verification",
   verificationCodeSchema,
   "verification_codes"
