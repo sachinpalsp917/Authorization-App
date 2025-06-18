@@ -98,7 +98,7 @@ export const loginUser = async ({
   });
 
   const sessionInfo = {
-    session: session._id,
+    sessionId: session._id,
   };
 
   const refreshToken = signToken(sessionInfo, refreshTokenSignOptions);
