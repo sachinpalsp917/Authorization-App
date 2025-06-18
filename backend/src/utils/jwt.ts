@@ -4,11 +4,11 @@ import { UserDocument } from "../models/user.models";
 import jwt from "jsonwebtoken";
 import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
 
-type accessTokenPayload = {
+export type accessTokenPayload = {
   sessionId: sessionDocument["_id"];
 };
 
-type refreshTokenPayload = {
+export type refreshTokenPayload = {
   userId: UserDocument["_id"];
   sessionId: sessionDocument["_id"];
 };
