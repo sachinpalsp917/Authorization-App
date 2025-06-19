@@ -1,4 +1,4 @@
-import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
+import { APP_ORIGIN, JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
 import {
   CONFLICT,
   INTERNAL_SERVER_ERROR,
@@ -23,6 +23,8 @@ import {
   verifyToken,
 } from "../utils/jwt";
 import { now } from "mongoose";
+import { sendMail } from "../utils/sendMail";
+import { getVerifyEmailTemplate } from "../utils/emailTemplates";
 
 type createAccountParams = {
   email: string;
@@ -60,6 +62,15 @@ export const createAccount = async (data: createAccountParams) => {
   });
 
   // send verification email - done later
+  const url = `${APP_ORIGIN}/auth/verify/email/${verificationCode._id}`;
+  const { error } = await sendMail({
+    to: newUser.email,
+    ...getVerifyEmailTemplate(url),
+  });
+
+  if (error) {
+    console.log("Error sending email: ", error);
+  }
 
   const session = await Session.create({
     userId: newUser._id,
