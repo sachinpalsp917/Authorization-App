@@ -3,6 +3,7 @@ import {
   CONFLICT,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
+  TOO_MANY_REQUEST,
   UNAUTHORIZED,
 } from "../constants/http";
 import verficationCode from "../constants/verifcationCodeTypes";
@@ -11,7 +12,9 @@ import { User } from "../models/user.models";
 import { VerificationCode } from "../models/verificationCode.models";
 import appAssert from "../utils/appAssert";
 import {
+  fiveMinutesAgo,
   ONE_DAY_MS,
+  oneHourFromNow,
   thirtyDaysFromNow,
   thirtyMinutesFromNow,
 } from "../utils/date";
@@ -24,7 +27,10 @@ import {
 } from "../utils/jwt";
 import { now } from "mongoose";
 import { sendMail } from "../utils/sendMail";
-import { getVerifyEmailTemplate } from "../utils/emailTemplates";
+import {
+  getPasswordResetTemplate,
+  getVerifyEmailTemplate,
+} from "../utils/emailTemplates";
 
 type createAccountParams = {
   email: string;
@@ -199,5 +205,53 @@ export const verifyEmail = async (code: string) => {
 
   return {
     user: updatedUser.omitPassword(),
+  };
+};
+
+export const sendPasswordResetEmail = async (email: string) => {
+  /*
+    1. get the user by email 
+    2. check email rate limit
+    3. create verification code
+    4. send verification email
+    5. return success
+  */
+
+  const user = await User.findOne({ email });
+  appAssert(user, NOT_FOUND, "User not found");
+
+  const fiveMinAgo = fiveMinutesAgo();
+  const count = await VerificationCode.countDocuments({
+    userId: user._id,
+    type: verficationCode.RESET_PASSWORD,
+    createdAt: { $gt: fiveMinAgo },
+  });
+  appAssert(
+    count <= 1,
+    TOO_MANY_REQUEST,
+    "Too many requests, please try again later"
+  );
+
+  const expiresAt = oneHourFromNow();
+  const verificationCode = await VerificationCode.create({
+    userId: user._id,
+    type: verficationCode.RESET_PASSWORD,
+    expiresAt,
+  });
+
+  const url = `${APP_ORIGIN}/auth/password/reset?code=${verificationCode._id}?exp=${expiresAt.getTime()}`;
+  const { data, error } = await sendMail({
+    to: user.email,
+    ...getPasswordResetTemplate(url),
+  });
+  appAssert(
+    data?.id,
+    INTERNAL_SERVER_ERROR,
+    `${error?.name} - ${error?.message}`
+  );
+
+  return {
+    url,
+    emailId: data.id,
   };
 };
