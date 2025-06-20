@@ -5,11 +5,11 @@ import jwt from "jsonwebtoken";
 import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
 
 export type accessTokenPayload = {
+  userId: UserDocument["_id"];
   sessionId: sessionDocument["_id"];
 };
 
 export type refreshTokenPayload = {
-  userId: UserDocument["_id"];
   sessionId: sessionDocument["_id"];
 };
 
@@ -57,6 +57,6 @@ export const verifyToken = <TPayload extends object = accessTokenPayload>(
 
     return { payload };
   } catch (error: any) {
-    console.log(error.message);
+    return { error: error.message };
   }
 };

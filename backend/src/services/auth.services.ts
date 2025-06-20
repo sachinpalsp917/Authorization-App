@@ -152,7 +152,7 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
   });
   appAssert(payload, UNAUTHORIZED, "Invalid refresh token");
 
-  const session = await Session.findById(payload.payload.sessionId);
+  const session = await Session.findById(payload.payload?.sessionId);
   const now = Date.now();
   appAssert(
     session && session.expiresAt.getTime() > now,
