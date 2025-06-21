@@ -69,7 +69,7 @@ export const createAccount = async (data: createAccountParams) => {
   });
 
   // send verification email - done later
-  const url = `${APP_ORIGIN}/auth/verify/email/${verificationCode._id}`;
+  const url = `${APP_ORIGIN}/verify/email/${verificationCode._id}`;
   const { error } = await sendMail({
     to: newUser.email,
     ...getVerifyEmailTemplate(url),
