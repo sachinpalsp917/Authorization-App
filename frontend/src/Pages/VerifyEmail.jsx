@@ -39,7 +39,7 @@ const VerifyEmail = () => {
                 <Text color={"gray.400"}>
                   The Link is either Invalid or expired
                   <ChakraLink asChild>
-                    <Link to={"/forgot/password"} replace>
+                    <Link to={"/password/forgot"} replace>
                       Get a new Link
                     </Link>
                   </ChakraLink>
