@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import VerifyEmail from "./Pages/VerifyEmail";
@@ -7,12 +7,15 @@ import ResetPassword from "./Pages/ResetPassword";
 import AppContainer from "./components/AppContainer";
 import Profile from "./Pages/Profile";
 import Settings from "./Pages/Settings";
+import { setNavigate } from "./lib/navigation";
 
 const Home = () => {
   return <div>Home</div>;
 };
 
 function App() {
+  const navigate = useNavigate();
+  setNavigate(navigate);
   return (
     <Routes>
       <Route path="/" element={<AppContainer />}>
