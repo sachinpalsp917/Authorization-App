@@ -218,43 +218,48 @@ export const sendPasswordResetEmail = async (email: string) => {
     5. return success
   */
 
-  const user = await User.findOne({ email });
-  appAssert(user, NOT_FOUND, "User not found");
+  try {
+    const user = await User.findOne({ email });
+    appAssert(user, NOT_FOUND, "User not found");
 
-  const fiveMinAgo = fiveMinutesAgo();
-  const count = await VerificationCode.countDocuments({
-    userId: user._id,
-    type: verficationCode.RESET_PASSWORD,
-    createdAt: { $gt: fiveMinAgo },
-  });
-  appAssert(
-    count <= 1,
-    TOO_MANY_REQUEST,
-    "Too many requests, please try again later"
-  );
+    const fiveMinAgo = fiveMinutesAgo();
+    const count = await VerificationCode.countDocuments({
+      userId: user._id,
+      type: verficationCode.RESET_PASSWORD,
+      createdAt: { $gt: fiveMinAgo },
+    });
+    appAssert(
+      count <= 1,
+      TOO_MANY_REQUEST,
+      "Too many requests, please try again later"
+    );
 
-  const expiresAt = oneHourFromNow();
-  const verificationCode = await VerificationCode.create({
-    userId: user._id,
-    type: verficationCode.RESET_PASSWORD,
-    expiresAt,
-  });
+    const expiresAt = oneHourFromNow();
+    const verificationCode = await VerificationCode.create({
+      userId: user._id,
+      type: verficationCode.RESET_PASSWORD,
+      expiresAt,
+    });
 
-  const url = `${APP_ORIGIN}/auth/password/reset?code=${verificationCode._id}?exp=${expiresAt.getTime()}`;
-  const { data, error } = await sendMail({
-    to: user.email,
-    ...getPasswordResetTemplate(url),
-  });
-  appAssert(
-    data?.id,
-    INTERNAL_SERVER_ERROR,
-    `${error?.name} - ${error?.message}`
-  );
+    const url = `${APP_ORIGIN}/auth/password/reset?code=${verificationCode._id}?exp=${expiresAt.getTime()}`;
+    const { data, error } = await sendMail({
+      to: user.email,
+      ...getPasswordResetTemplate(url),
+    });
+    appAssert(
+      data?.id,
+      INTERNAL_SERVER_ERROR,
+      `${error?.name} - ${error?.message}`
+    );
 
-  return {
-    url,
-    emailId: data.id,
-  };
+    return {
+      url,
+      emailId: data.id,
+    };
+  } catch (error: any) {
+    console.log("SendPasswordResetError: ", error.message);
+    return {};
+  }
 };
 
 type resetPasswordParams = {
